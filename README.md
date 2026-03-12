@@ -2,23 +2,15 @@
 
 Skill bundle for running the Done Bear CLI with discovery, auth, workspace, task, project, and import workflows.
 
-## Install
-
-Published bundle:
+## Quick Start
 
 ```bash
 npx skills add donebear/skills -g --all -y
 ```
 
-Manual copy:
+Supports OpenCode, Claude Code, Codex, and Cursor.
 
-```bash
-cp -R skills/* ~/.claude/skills/
-```
-
-## Included Skills
-
-This repo currently ships one skill.
+## Skills
 
 | Skill      | What it does                                                                                                                              | Use when                                                                                                                                                                       |
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
