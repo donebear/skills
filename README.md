@@ -24,11 +24,6 @@ This repo currently ships one skill.
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `donebear` | Operates the Done Bear CLI for command discovery, auth and workspace preflight, task and project workflows, API keys, and Things imports. | The user asks to run `donebear`, inspect `donebear spec` or `donebear context`, or manage Done Bear tasks, projects, workspaces, auth, API keys, or imports from the terminal. |
 
-## Maintenance
-
-- Keep the README skill inventory in sync with `skills/*/SKILL.md`.
-- When adding or removing a skill, update both `README.md` and `AGENTS.md`.
-
 ## License
 
 [MIT](LICENSE.md)
