@@ -7,7 +7,7 @@ Skill bundle for running the Done Bear CLI with discovery, auth, workspace, task
 Published bundle:
 
 ```bash
-npx skills add mblode/agent-skills
+npx skills add donebear/skills
 ```
 
 Manual copy:

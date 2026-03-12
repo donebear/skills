@@ -29,7 +29,7 @@ sed -n '1,120p' skills/donebear/SKILL.md
 Published bundle:
 
 ```bash
-npx skills add mblode/agent-skills
+npx skills add donebear/skills
 ```
 
 Manual copy:
@@ -45,10 +45,10 @@ cp -R skills/* ~/.claude/skills/
 
 ```bash
 find skills -mindepth 2 -maxdepth 2 -name 'SKILL.md' | sort
-rg -n 'mblode/agent-skills|~/.claude/skills/|skills/\\*/SKILL.md|skills/donebear/SKILL.md' README.md AGENTS.md
+rg -n 'donebear/skills|~/.claude/skills/|skills/\\*/SKILL.md|skills/donebear/SKILL.md' README.md AGENTS.md
 ```
 
 ## Repo Gotchas
 
-- The published install slug is `mblode/agent-skills`. Do not reintroduce older slugs.
+- The published install slug is `donebear/skills`. Do not reintroduce older slugs.
 - If the skill list changes, update `README.md` in the same change as the skill addition or removal.
