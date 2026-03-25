@@ -3,7 +3,7 @@
 ## Scope
 
 - This repo is a skill bundle. The local source of truth is `skills/*/SKILL.md`.
-- The current local bundle contains only `skills/donebear/SKILL.md`.
+- The current local bundle contains `skills/donebear/SKILL.md` and `skills/autoship/SKILL.md`.
 - Keep edits scoped to the files requested. Do not revert unrelated work in the repo.
 
 ## Discover First
