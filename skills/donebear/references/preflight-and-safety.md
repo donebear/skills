@@ -32,6 +32,25 @@
 - Mutations that need a user id can fail even with a bearer token.
   Fix: use a token with JWT user claims or log in interactively.
 
+## API Key Auth
+
+API keys are an alternative to interactive login for headless and agent use.
+
+```bash
+donebear api-key create "hermes" --json
+donebear api-key create "ci" --permissions read-only --expires 90d --json
+donebear api-key create "scoped" --workspaces personal --json
+donebear api-key list --json
+donebear api-key revoke <id>
+```
+
+- Set `DONEBEAR_TOKEN=<key>` in the environment or pass `--token <key>`.
+- Token precedence: `--token` > `DONEBEAR_TOKEN` > stored session.
+- `--permissions` accepts `full-access` (default) or `read-only`.
+- `--workspaces` accepts comma-separated workspace slugs to restrict the key's scope.
+- `--expires` accepts a duration like `30d`, `90d`, `1y`.
+- `donebear whoami --json` validates that the key works and shows the associated user.
+
 ## Workspace Preflight
 
 - Run `donebear workspace current --json` or `donebear workspace list --json`.

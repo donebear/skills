@@ -15,9 +15,7 @@ Use this whenever discovery docs, help text, and runtime behavior do not line up
 
 ## Known Drifts
 
-- `donebear spec auth login` advertises `--provider`, but the implemented command only supports `--port`, `--timeout`, and `--no-open`.
-- `donebear spec task list` and `task list --help` mention `--view`, but the runtime rejects it. Use `donebear today` for today's tasks.
-- `donebear spec task add` and `donebear spec task edit` still mention `--assignee` and `--label`, but those flags are not registered in `task.ts`.
+No known drifts as of 2026-03-13. If a command fails unexpectedly, run `donebear <command> --help` to confirm the current signature, then update this section.
 
 ## Output Validation Tips
 

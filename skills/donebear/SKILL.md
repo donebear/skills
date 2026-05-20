@@ -5,24 +5,52 @@ description: Operates the Done Bear CLI for command discovery, auth and workspac
 
 # Done Bear
 
-Operate `donebear` with a discovery -> preflight -> execute -> validate workflow.
+Operate `donebear` with a try-first, recover-on-failure workflow. Prefer `--json` for agent parsing.
 
 ## Reference Files
 
 | File | Read when |
 |------|-----------|
-| `references/preflight-and-safety.md` | Before the first command, when auth or workspace state is unclear, or before destructive writes |
-| `references/core-recipes.md` | Running common auth, workspace, task, project, search, context, API key, or import flows |
-| `references/live-validation.md` | `spec`, `--help`, and runtime behavior disagree, or a command fails unexpectedly |
+| `references/preflight-and-safety.md` | Auth or workspace errors occur, or before destructive writes |
+| `references/core-recipes.md` | Running uncommon flows (imports, API keys, workspace management) |
+| `references/live-validation.md` | A command fails unexpectedly or `spec` and runtime disagree |
+
+## Quick Reference
+
+Use these directly — no `spec` lookup needed.
+
+| Action | Command |
+|--------|---------|
+| Add a task | `donebear task add "Title" --when today --json` |
+| List tasks | `donebear task list --json` |
+| List by view | `donebear task list --view today --json` |
+| Today's tasks | `donebear today --json` |
+| Complete a task | `donebear task done <id> --json` |
+| Edit a task | `donebear task edit <id> --title "New" --deadline 2026-03-20 --json` |
+| Search | `donebear search "query" --json` |
+| Add project | `donebear project add "Name" --json` |
+| Workspace context | `donebear context --json` |
+
+### `task add` flags
+
+`--when <view>` (inbox|anytime|today|upcoming|someday, default: inbox), `--deadline <YYYY-MM-DD>`, `--notes <text>`, `--project <key-or-id>`, `--team <key-or-id>`, `--workspace <id-or-slug>`.
+
+### `task edit` flags
+
+`--title <text>`, `--when <view>`, `--deadline <date>`, `--clear-deadline`, `--notes <text>`, `--clear-notes`, `--project <key-or-id>`, `--clear-project`, `--team <key-or-id>`, `--clear-team`.
+
+### `task list` flags
+
+`--state <open|done|archived|all>` (default: open), `--view <inbox|anytime|today|upcoming|someday>`, `--search <query>`, `--limit <n>` (default: 20).
 
 ## Intent Map
 
 | Intent | Commands | Notes |
 |--------|----------|-------|
 | Discover the CLI | `donebear spec`, `donebear spec <command> [subcommand]` | No auth required |
-| Orient the current account | `donebear auth status`, `donebear whoami`, `donebear workspace list`, `donebear context` | `context --markdown` is prompt-ready |
-| Read and triage work | `task list`, `task show`, `task read`, `today`, `search`, `history` | Prefer `--json` for parsing |
-| Change state | `task add/edit/done`, `project add/edit/done`, `workspace use`, `checklist ...` | Validate ids, workspace, and post-state |
+| Orient the current account | `donebear auth status`, `donebear whoami`, `donebear context` | `context --markdown` is prompt-ready |
+| Read and triage work | `task list`, `task show`, `today`, `search`, `history` | Prefer `--json` for parsing |
+| Change state | `task add/edit/done`, `project add/edit/done`, `workspace use` | Trust `--json` output for confirmation |
 | Risky operations | `auth logout`, `task archive`, `project archive`, `api-key revoke`, `import things` without `--dry-run` | Require explicit user intent |
 
 ## Safety Tiers
@@ -34,50 +62,31 @@ Operate `donebear` with a discovery -> preflight -> execute -> validate workflow
 
 ## Workflow
 
-Copy this checklist to track progress:
+### Default: Try First, Recover on Failure
 
-```text
-Donebear progress:
-- [ ] Step 1: Discover the exact command surface
-- [ ] Step 2: Preflight auth, token source, and workspace scope
-- [ ] Step 3: Execute the smallest safe command
-- [ ] Step 4: Validate the resulting state
-```
+1. **Execute the command directly** with `--json`. Use the Quick Reference above for common commands.
+2. **Handle errors reactively:**
+   - Exit code 4 (AUTH_REQUIRED): Run `donebear auth login`, then retry the original command.
+   - "No workspace selected" or workspace errors: Run `donebear workspace list --json`, then `donebear workspace use <slug>`, then retry.
+   - Unknown option error: Run `donebear <command> --help` to get the real flags, then retry.
+3. **Trust `--json` output.** When `task add --json` returns `{ "created": true, "id": "..." }`, the task exists. Do NOT call `task show` to validate.
+4. **Use `donebear spec` only for uncommon commands** or when you need to discover available subcommands.
+5. If `donebear` is not on `PATH` but the monorepo is present, use `npm exec --workspace=packages/cli donebear -- <args>` from the repo root.
 
-### Step 1: Discover the exact command surface
+### When Preflight IS Needed
 
-- Start with `donebear spec` or `donebear spec <command> [subcommand]`.
-- For flag-sensitive or less common paths, also run `donebear <command> --help` before execution.
-- Prefer explicit subcommands over the interactive prompt. `donebear` with no args on a TTY enters interactive mode, which is harder to script and validate.
-- Prefer `--json` for agent parsing. Add `--jq`, command-local `--limit`, `--format yaml|csv|tsv`, or `--copy` only when needed.
-- If `donebear` is not on `PATH` but the monorepo is present, use `npm exec --workspace=packages/cli donebear -- <args>` from the repo root.
+Load `references/preflight-and-safety.md` in these cases:
 
-### Step 2: Preflight auth, token source, and workspace scope
-
-- Load `references/preflight-and-safety.md`.
-- Check `donebear auth status --json`, then `donebear whoami --json` before anything stateful.
-- Resolve workspace state with `donebear workspace current --json` or `donebear workspace list --json`.
-- If multiple workspaces exist, either set one with `donebear workspace use <id-or-slug>` or prefix the command as `donebear workspace=<slug> ...`.
-- Use `donebear context --json` or `donebear context --markdown` before multi-step task or project work.
-
-### Step 3: Execute the smallest safe command
-
-- Read-only requests can execute directly once auth and workspace are known.
-- For writes, use the narrowest mutation that satisfies the request, and prefer `--dry-run` when the command supports it.
-- Use full ids or stable keys whenever possible. Task prefixes must be unique and at least 4 characters long.
-- `task list` does not currently support a working `--view` flag. Use `donebear today` for today's tasks and `search` or `state` filters for other triage paths.
-- Load `references/core-recipes.md` for concrete command flows.
-
-### Step 4: Validate the resulting state
-
-- After auth changes, rerun `donebear auth status --json` and `donebear whoami --json`.
-- After workspace changes, rerun `donebear workspace current --json` or `donebear context --json`.
-- After task or project mutations, rerun `show`, `list`, `today`, or `context --json`.
-- If `spec`, `--help`, and runtime disagree, trust runtime behavior and then load `references/live-validation.md`.
+- First interaction when you don't know if auth is configured and the command fails with exit 4
+- Multi-workspace accounts where no default is set
+- Before destructive RED-tier operations
+- When running uncommon commands (import, api-key)
 
 ## Anti-patterns
 
-- Treating `donebear spec` as the only source of truth for flags and examples.
+- Running `donebear spec` before every command. Use the Quick Reference for common commands.
+- Running `auth status` + `whoami` + `workspace current` before every operation. Try the command first.
+- Calling `task show` after `task add` to validate. The `--json` output already confirms success.
 - Assuming a default workspace exists when multiple workspaces are available.
 - Using `--json` on destructive commands without explicit user approval.
 - Running `import things` without a dry run first.

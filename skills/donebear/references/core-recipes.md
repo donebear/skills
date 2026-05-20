@@ -43,13 +43,15 @@ donebear workspace members personal --format csv
 
 ```bash
 donebear task list --json
+donebear task list --view today --json
+donebear task list --view upcoming --json
 donebear task show 8f2c --json
 donebear task read 8f2c
 donebear search "invoice" --json
 donebear today --json
 ```
 
-- Use `today` instead of `task list --view today`.
+- `task list --view today` and `donebear today` are equivalent. Use whichever reads better.
 - `task read` prints raw notes in text mode and is useful when the user wants just the description.
 
 ## Task Mutations
@@ -74,11 +76,17 @@ donebear project add "CLI polish" --target-date 2026-03-31 --json
 donebear label list --json
 donebear team show eng --json
 donebear history --model Task --limit 20 --json
-donebear api-key create "CI"
+donebear api-key create "CI" --json
+donebear api-key create "hermes" --permissions full-access --workspaces personal --json
+donebear api-key create "readonly-ci" --permissions read-only --expires 90d --json
 donebear api-key list --json
+donebear api-key revoke <id>
 ```
 
 - `api-key create` reveals the token once. Surface it carefully and assume it is sensitive.
+- `--permissions` accepts `full-access` (default) or `read-only`.
+- `--workspaces` restricts the key to specific workspaces (comma-separated slugs).
+- `--expires` sets an expiration (e.g. `30d`, `90d`, `1y`).
 - `api-key revoke` is destructive and should be treated like a red-tier action.
 
 ## Things Import
